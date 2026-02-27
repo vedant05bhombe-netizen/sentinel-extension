@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentinel — Dangerous URL Blocked</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --black: #060606;
+      --red: #c0392b;
+      --red-dim: #7a1a10;
+      --white: #f2ede7;
+      --cream: #c9c2b8;
+      --border: #2a2a2a;
+      --accent: #d4a853;
+    }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: crosshair;
+      overflow: hidden;
+      position: relative;
+    }
+    /* Animated grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(192,57,43,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(192,57,43,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: grid-pulse 4s ease-in-out infinite;
+    }
+    @keyframes grid-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* Pulsing red border */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      border: 2px solid var(--red);
+      animation: border-pulse 1.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes border-pulse { 0%,100%{opacity:1;box-shadow:inset 0 0 40px rgba(192,57,43,0.2)} 50%{opacity:0.4;box-shadow:inset 0 0 0px rgba(192,57,43,0)} }
+
+    .container {
+      text-align: center;
+      max-width: 640px;
+      padding: 3rem 2rem;
+      position: relative;
+      z-index: 1;
+      animation: fade-up 0.5s ease;
+    }
+    @keyframes fade-up { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+    .shield {
+      font-size: 5rem;
+      display: block;
+      margin-bottom: 1.5rem;
+      animation: shield-shake 0.5s ease 0.3s both;
+    }
+    @keyframes shield-shake {
+      0%,100%{transform:rotate(0)} 20%{transform:rotate(-5deg)} 40%{transform:rotate(5deg)} 60%{transform:rotate(-3deg)} 80%{transform:rotate(3deg)}
+    }
+
+    .eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 1rem;
+    }
+
+    .title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 10vw, 7rem);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--red);
+      line-height: 0.9;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 60px rgba(192,57,43,0.4);
+    }
+
+    .subtitle {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      color: var(--cream);
+      opacity: 0.7;
+      margin-bottom: 2.5rem;
+      line-height: 1.8;
+    }
+
+    .url-box {
+      background: rgba(192,57,43,0.08);
+      border: 1px solid var(--red-dim);
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+      text-align: left;
+      word-break: break-all;
+    }
+    .url-label { font-size: 0.55rem; letter-spacing: 0.35em; color: var(--red); text-transform: uppercase; margin-bottom: 0.4rem; }
+    .url-value { font-size: 0.75rem; color: var(--cream); opacity: 0.8; }
+
+    .threat-strip {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+    }
+    .threat-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.9rem;
+      border: 1px solid var(--red-dim);
+      color: var(--red);
+      background: rgba(192,57,43,0.08);
+    }
+
+    .actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-back {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.9rem 2.5rem;
+      background: var(--accent);
+      color: var(--black);
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-back:hover { background: var(--white); }
+    .btn-report {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.9rem 2rem;
+      background: transparent;
+      color: var(--cream);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-report:hover { border-color: var(--accent); color: var(--accent); }
+
+    .proceed-link {
+      margin-top: 1.5rem;
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      color: #444;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .proceed-link:hover { color: #666; }
+
+    .logo {
+      position: fixed;
+      top: 1.5rem; left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">SENTINEL</div>
+
+  <div class="container">
+    <span class="shield">🛡️</span>
+    <div class="eyebrow">// Threat Neutralized — Access Blocked</div>
+    <h1 class="title">DANGEROUS<br>URL<br>BLOCKED</h1>
+    <p class="subtitle">
+      Sentinel has intercepted this URL and determined it poses<br>
+      a HIGH risk to your security. Navigation has been halted.
+    </p>
+
+    <div class="url-box">
+      <div class="url-label">Blocked URL</div>
+      <div class="url-value" id="blocked-url">Loading…</div>
+    </div>
+
+    <div class="threat-strip" id="threat-strip"></div>
+
+    <div class="actions">
+      <button class="btn-back" onclick="history.back()">← Go Back to Safety</button>
+      <button class="btn-report" onclick="reportFalsePositive()">Report False Positive</button>
+    </div>
+
+    <div class="proceed-link" onclick="proceedAnyway()">I understand the risks, proceed anyway →</div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const url = params.get("url") || "";
+    const threats = JSON.parse(decodeURIComponent(params.get("threats") || "[]"));
+
+    document.getElementById("blocked-url").textContent = url || "Unknown URL";
+
+    const strip = document.getElementById("threat-strip");
+    const displayThreats = threats.length > 0 ? threats : ["MALICIOUS URL", "HIGH RISK"];
+    displayThreats.forEach(t => {
+      const tag = document.createElement("div");
+      tag.className = "threat-tag";
+      tag.textContent = t;
+      strip.appendChild(tag);
+    });
+
+    function proceedAnyway() {
+      if (confirm("⚠️ WARNING: This URL has been flagged as DANGEROUS.\n\nAre you absolutely sure you want to proceed? This could expose your device to malware or phishing attacks.")) {
+        location.href = url;
+      }
+    }
+
+    function reportFalsePositive() {
+      alert("Thank you for the report! False positive reports help improve Sentinel's accuracy.");
+    }
+  </script>
+</body>
+</html>
